@@ -5,9 +5,9 @@ import java.util.Iterator;
 
 import treeInterfaces.Position;
 
-public class LinkedBinaryTree<E> extends AbstractBinaryTree<E> {
-    // class Node<E> is included at the end of this class
-	
+public class LinkedBinaryTree<E> extends AbstractBinaryTree<E> implements Cloneable {
+	// class Node<E> is included at the end of this class
+
 	private Node<E> root;   // the root of the tree
 	int size;               // the size of the tree
 
@@ -15,18 +15,18 @@ public class LinkedBinaryTree<E> extends AbstractBinaryTree<E> {
 		root = null; 
 		size = 0; 
 	}
-	
+
 	private Node<E> validate(Position<E> p) throws IllegalArgumentException { 
 		if (!(p instanceof Node<?>)) 
 			throw new IllegalArgumentException("Position is not of righ data type."); 
-		
+
 		Node<E> ptn = (Node<E>) p; 
 		if (ptn.getParent() == p) 
 			throw new IllegalArgumentException("Invalid position --- not a tree position."); 
-		
+
 		return ptn; 
 	}
-	
+
 	@Override
 	public Position<E> left(Position<E> p) throws IllegalArgumentException {
 		Node<E> ptn = validate(p); 
@@ -55,12 +55,12 @@ public class LinkedBinaryTree<E> extends AbstractBinaryTree<E> {
 		return size;
 	}
 
-	
+
 	////////////////////////////////////////////////////////////////////////////////
 	// OTHER methods as in textbook: addRoot, addLeft, addRight, attach, and remove
 	// SEE Page 324 in textbook. 
 	////////////////////////////////////////////////////////////////////////////////
-	
+
 	/**
 	 * Creates a root for an empty tree, storing the specified element. The tree must
 	 * be empty for this operation to be valid. 
@@ -77,7 +77,7 @@ public class LinkedBinaryTree<E> extends AbstractBinaryTree<E> {
 		size = 1; 
 		return root; 
 	}
-	
+
 	/**
 	 * Adds a new element as the element of the new position to be added as the left 
 	 * child of another given position in the tree. 
@@ -97,7 +97,7 @@ public class LinkedBinaryTree<E> extends AbstractBinaryTree<E> {
 		size++; 
 		return newNode;
 	}
-	
+
 	/**
 	 * Same as the above, but to add a right child of p, which shall containg element e. 
 	 * @param p
@@ -114,7 +114,7 @@ public class LinkedBinaryTree<E> extends AbstractBinaryTree<E> {
 		size++; 
 		return newNode;
 	}
-	
+
 	/**
 	 * Attaches the internal structure of two specified trees as the left and right 
 	 * subtrees of a given external node in this binary tree. The two subtrees to be
@@ -129,7 +129,7 @@ public class LinkedBinaryTree<E> extends AbstractBinaryTree<E> {
 	 * an external method. 
 	 */
 	public void Attach(Position<E> p, LinkedBinaryTree<E> t1, LinkedBinaryTree<E> t2) 
-							throws IllegalArgumentException
+			throws IllegalArgumentException
 	{ 
 		Node<E> np = validate(p); 
 		if (isInternal(np))
@@ -138,7 +138,7 @@ public class LinkedBinaryTree<E> extends AbstractBinaryTree<E> {
 		if (!t1.isEmpty()) { 
 			np.setLeft(t1.root);
 			t1.root.setParent(np); 
-			
+
 			// make t1 empty
 			t1.root = null; 
 			t1.size = 0; 
@@ -146,13 +146,13 @@ public class LinkedBinaryTree<E> extends AbstractBinaryTree<E> {
 		if (!t2.isEmpty()) { 
 			np.setRight(t2.root);
 			t2.root.setParent(np); 
-			
+
 			// make t2 empty
 			t2.root = null; 
 			t2.size = 0; 
 		}
 	}
-	
+
 	/**
 	 * Removes the node at a given position. Replaces it with its current child
 	 * (if any). 
@@ -166,11 +166,11 @@ public class LinkedBinaryTree<E> extends AbstractBinaryTree<E> {
 		Node<E> ntd = validate(p); 
 		if (numChildren(ntd) == 2)
 			throw new IllegalArgumentException("Position to delete has two children.");
-		
+
 		// if execution reaches this point, then p is a valid position for this 
 		// remove operation. 
 		E etr = ntd.getElement();   // element to return - current value of p
-		
+
 		// Assign to variable child the reference to the only child of p, if any; 
 		// otherwise, make it null. 
 		Node<E> child = (ntd.getLeft() == null ? ntd.getRight() : ntd.getLeft()); 
@@ -184,18 +184,48 @@ public class LinkedBinaryTree<E> extends AbstractBinaryTree<E> {
 		if (child != null)
 			child.setParent(parent);      // if child exists, set its parent to parent of p
 		size--; 
-		
+
 		// discard deleted node
 		ntd.discard();          // or clean...
-		
+
 		return etr; 
+	}
+	
+	public LinkedBinaryTree<E> clone(){
+		LinkedBinaryTree<E> newTree = new LinkedBinaryTree<>();
+		Position<E> p1 = this.root();
+		newTree.addRoot(p1.getElement());
+		cloneLeft(newTree, this.left(p1), p1);
+		cloneRight(newTree, this.right(p1), p1);
+		
+		return newTree;
+	}
+	public void clone(Position<E> p1, LinkedBinaryTree<E> newTree){
+		//LinkedBinaryTree<E> newTree = new LinkedBinaryTree<>();
+		
+		newTree.addRoot(p1.getElement());
+		cloneLeft(newTree, this.left(p1), p1);
+		cloneRight(newTree, this.right(p1), p1);
+		
+		//return newTree;
+	}
+	public void cloneLeft(LinkedBinaryTree<E> t, Position<E> p, Position<E> p1){
+		t.addLeft(p1, p.getElement());
+		clone(p1, t);
+		
+		
+	}
+	public void cloneRight(LinkedBinaryTree<E> t, Position<E> p, Position<E> p1){
+		t.addRight(p1, p.getElement());
+		clone(p1, t);
+		
 	}
 
 	/**
 	 * SEE ALSO METHOD set in textbook. Work an implementation on your own, but not required
 	 * for this lab. 
 	 */
-	
+
 	////////////////////////////////////////////////////////
 	// Inner class Node<E> and method to create new node  //
 	////////////////////////////////////////////////////////	
@@ -239,15 +269,15 @@ public class LinkedBinaryTree<E> extends AbstractBinaryTree<E> {
 		public void setElement(E element) {
 			this.element = element;
 		}
-		
+
 		public void discard() { 
 			element = null; 
 			left = right = null;
 			parent = this; 
 		}
-		
+
 	} // end Node<E>
-	
+
 	/**
 	 * Method to create a new Node
 	 * @param e the element in the new node

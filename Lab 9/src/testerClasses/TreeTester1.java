@@ -38,6 +38,8 @@ public class TreeTester1 {
 		p1 = t.addChild(p1, "Ana"); 
 		t.addChild(p, "Elegancia"); 
 		
+		
+		
 		Utils.displayTree("The tree is: ", t);
 		
 	}
